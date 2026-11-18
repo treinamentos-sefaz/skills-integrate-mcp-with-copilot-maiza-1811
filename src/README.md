@@ -48,3 +48,29 @@ A aplicação usa um modelo de dados simples com identificadores significativos:
    - Nível da série
 
 Todos os dados são armazenados na memória, o que significa que os dados serão resetados quando o servidor reiniciar.
+
+## Contas de Professores
+
+Estudantes podem visualizar atividades e participantes. Somente professores autenticados podem registrar ou remover estudantes. As contas dos professores ficam em `teachers.json`; as senhas são armazenadas como hashes PBKDF2 com salt, não em texto simples.
+
+Para criar uma senha, execute este comando no terminal e informe a senha quando solicitado:
+
+```sh
+python -c 'import getpass, hashlib, secrets; salt = secrets.token_bytes(16); password = getpass.getpass("Teacher password: "); digest = hashlib.pbkdf2_hmac("sha256", password.encode(), salt, 310000); print("salt=" + salt.hex()); print("password_hash=" + digest.hex())'
+```
+
+Adicione os valores gerados a `teachers.json` neste formato:
+
+```json
+{
+  "teachers": [
+    {
+      "username": "teacher1",
+      "salt": "generated-salt",
+      "password_hash": "generated-password-hash"
+    }
+  ]
+}
+```
+
+As sessões de professor expiram após oito horas e são mantidas em memória; reiniciar o servidor encerra as sessões ativas.
